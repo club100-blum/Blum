@@ -1,0 +1,3 @@
+PROXY FORMAT
+login:password@host:port
+PROXY TYPE HTTP

@@ -1,0 +1,4 @@
+accounts.db
+sessions/
+statistics/
+**__pycache__**
