@@ -3,12 +3,10 @@ telethon
 cryptography
 cryptg
 loguru==0.7.2
-psutil
 aiohttp-proxy
 aiohttp==3.9.5
 sqlalchemy[asyncio]
 aiosqlite
 aiocfscrape==1.0.0
 aiofiles
-mss
 pypiwin32
