@@ -5,6 +5,7 @@ cryptg
 loguru==0.7.2
 aiohttp-proxy
 aiohttp==3.9.5
+psutil
 sqlalchemy[asyncio]
 aiosqlite
 aiocfscrape==1.0.0
