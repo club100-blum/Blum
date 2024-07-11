@@ -12,7 +12,6 @@ from utils.proxy import to_url
 from utils.blum import BlumBot, RefCodeError, AccountUsedError
 from utils import db
 from data import config
-from utils.core.harddisk import check_free_space
 
 try:
     from aiocfscrape import CloudflareScraper
