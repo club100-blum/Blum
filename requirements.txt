@@ -1,5 +1,5 @@
 pyrogram==2.0.106
-telethon
+telethon==1.36.0
 cryptography
 cryptg
 loguru==0.7.2

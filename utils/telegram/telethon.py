@@ -137,7 +137,7 @@ class TelethonAccount(AccountInterface):
                 accounts.append(
                     TelethonAccount(session_params=session_params, proxy=next(proxies_))
                 )
-        logger.info(f"Loaded {len(accounts)} telethon accounts")
+        logger.info(f"Loaded {len(accounts)} telethon account")
         return accounts
     
     @staticmethod
@@ -172,7 +172,7 @@ class TelethonAccount(AccountInterface):
                     TelethonAccount(session_params=session_params, 
                                     proxy=get_dataimpulse_proxy_by_phone(session_params.session.removesuffix('.session').removeprefix('sessions/')))
                 )
-        logger.info(f"Loaded {len(accounts)} telethon accounts")
+        logger.info(f"Loaded {len(accounts)} telethon account")
         return accounts
     
     def __str__(self):
