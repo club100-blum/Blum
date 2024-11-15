@@ -40,8 +40,9 @@ async def start(account: AccountInterface):
                     max_try = 2
 
                     await sleep(uniform(*config.DELAYS['ACCOUNT']))
-                    await blum.login()
-                    
+                    a=await blum.login()
+                    logger.info(f"{account} | {a}")
+
                     try:
                         msg = await blum.claim_daily_reward()
                         if isinstance(msg, bool) and msg:
@@ -86,7 +87,13 @@ async def start(account: AccountInterface):
                                 break
 
                         except Exception as e:
-                            logger.error(f"{account} | Error in farming management: {e}")
+                            if not "NoneType" in e:
+                                logger.info(f"{account} | Недостаточно билетов..")
+                            else:
+                                logger.error(f"{account} | Error: {e}")
+
+
+
                     except Exception as e:
                         logger.error(f"{account} | Error: {e}")
                 except Exception as outer_e:
