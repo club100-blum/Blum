@@ -87,7 +87,7 @@ async def start(account: AccountInterface):
                                 break
 
                         except Exception as e:
-                            if not "NoneType" in e:
+                            if  "NoneType" in e:
                                 logger.info(f"{account} | Недостаточно билетов..")
                             else:
                                 logger.error(f"{account} | Error: {e}")
