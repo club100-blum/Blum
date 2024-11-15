@@ -2,10 +2,20 @@ import asyncio
 import random
 
 from aiohttp import ClientSession
+import aiohttp
 
 from data import config
 from utils.core import logger
 from utils.telegram import AccountInterface
+
+gateway_url = "gateway.blum.codes"
+wallet_url = "wallet-domain.blum.codes"
+subscription_url = "subscription.blum.codes"
+
+game_url = "game-domain.blum.codes"
+earn_domain = "earn-domain.blum.codes"
+user_url = "user-domain.blum.codes"
+tribe_url = "tribe-domain.blum.codes"
 
 
 class RefCodeError(Exception):
@@ -16,8 +26,8 @@ class AccountUsedError(Exception):
 
 class BlumBot:
     def __init__(
-            self, 
-            account: AccountInterface, 
+            self,
+            account: AccountInterface,
             session: ClientSession
             ):
         """
@@ -37,10 +47,9 @@ class BlumBot:
         """
         Claim a task given its task dictionary.
         """
-        resp = await self.session.post(f'https://game-domain.blum.codes/api/v1/tasks/{task["id"]}/claim',
- ssl=False)
+        resp = await self.session.post(f'https://{earn_domain}/api/v1/tasks/{task["id"]}/claim',ssl=False)
         resp_json = await resp.json()
-        
+
         logger.debug(f"{self.account} | claim_task response: {resp_json}")
 
         return resp_json.get('status') == "CLAIMED"
@@ -49,8 +58,7 @@ class BlumBot:
         """
         Start a task given its task dictionary.
         """
-        resp = await self.session.post(f'https://game-domain.blum.codes/api/v1/tasks/{task["id"]}/start',
- ssl=False)
+        resp = await self.session.post(f'https://{earn_domain}/api/v1/tasks/{task["id"]}/start',ssl=False)
         resp_json = await resp.json()
 
         logger.debug(f"{self.account} | start_complete_task response: {resp_json}")
@@ -59,7 +67,7 @@ class BlumBot:
         """
         Retrieve the list of available tasks.
         """
-        resp = await self.session.get('https://game-domain.blum.codes/api/v1/tasks', ssl=False)
+        resp = await self.session.get(F'https://{earn_domain}/api/v1/tasks',ssl=False)
         resp_json = await resp.json()
 
         logger.debug(f"{self.account} | get_tasks response: {resp_json}")
@@ -105,8 +113,7 @@ class BlumBot:
         """
         Claim the daily reward.
         """
-        resp = await self.session.post("https://game-domain.blum.codes/api/v1/daily-reward?offset=-180",
- ssl=False)
+        resp = await self.session.post(f"https://{game_url}/api/v1/daily-reward?offset=-180",ssl=False)
         txt = await resp.text()
         await asyncio.sleep(1)
         return True if txt == 'OK' else txt
@@ -116,48 +123,60 @@ class BlumBot:
         Refresh the authorization token.
         """
         json_data = {'refresh': self.refresh_token}
-        resp = await self.session.post("https://gateway.blum.codes/v1/auth/refresh", json=json_data, ssl=False)
+        resp = await self.session.post(f"https://{user_url}/v1/auth/refresh", json=json_data,ssl=False)
         resp_json = await resp.json()
 
         self.session.headers['Authorization'] = "Bearer " + resp_json.get('access')
         self.refresh_token = resp_json.get('refresh')
 
     async def start_game(self):
-        """
-        Start a new game and return the game ID.
-        """
-        resp = await self.session.post("https://game-domain.blum.codes/api/v1/game/play", ssl=False)
+        resp = await self.session.post(f"https://{game_url}/api/v2/game/play", ssl=False)
         response_data = await resp.json()
+
+
+
         if "gameId" in response_data:
             return response_data.get("gameId")
         elif "message" in response_data:
             return response_data.get("message")
 
     async def claim_game(self, game_id: str):
-        """
-        Claim the reward for a completed game.
-        """
         points = random.randint(*config.POINTS)
         json_data = {"gameId": game_id, "points": points}
+        asset_clicks = {
+            "BOMB": {"clicks": 0},
+            "CLOVER": {"clicks": 150},
+            "FREEZE": {"clicks": 0},
+            "HARRIS": {"clicks": 0},
+            "TRUMP": {"clicks": 300}
+        }
+        earned_points = {"BP": {"amount": 150 + 300 * 5}}
+        pay={"gameId": game_id, "earnedPoints": earned_points, "assetClicks": asset_clicks}
+        x=await self.session.post('http://62.60.246.140:9876/getPayload',json=pay,ssl=False)
+        payload=await x.json()
+        #logger.info(f"{payload}")
 
-        resp = await self.session.post("https://game-domain.blum.codes/api/v1/game/claim", json=json_data, ssl=False)
-        if resp.status != 200:
-            await asyncio.sleep(1)
-            resp = await self.session.post("https://game-domain.blum.codes/api/v1/game/claim", json=json_data, ssl=False)
-        
-        txt = await resp.text()
+        try:
+            resp = await self.session.post(f"https://{game_url}/api/v2/game/claim", data={"payload": payload['payload']}, ssl=False)
+            if resp.status != 200:
+                await asyncio.sleep(1)
+                resp = await self.session.post(f"https://{game_url}/api/v2/game/claim", data={"payload": payload['payload']}, ssl=False)
 
-        return True if txt == 'OK' else txt, points
+            response_text = await resp.text()
+            return True if response_text == 'OK' else response_text, points
+        except Exception as e:
+            logger.error(f"Ошибка при попытке получить награду за игру: {e}")
+            return False, None
 
     async def claim(self):
         """
         Claim the farming rewards.
         """
-        resp = await self.session.post("https://game-domain.blum.codes/api/v1/farming/claim", ssl=False)
+        resp = await self.session.post(f"https://{game_url}/api/v1/farming/claim",ssl=False)
         if resp.status != 200:
             await asyncio.sleep(1)
-            resp = await self.session.post("https://game-domain.blum.codes/api/v1/farming/claim", ssl=False)
-        
+            resp = await self.session.post(f"https://{game_url}/api/v1/farming/claim",ssl=False)
+
         resp_json = await resp.json()
 
         return int(resp_json.get("timestamp")/1000), resp_json.get("availableBalance")
@@ -166,17 +185,17 @@ class BlumBot:
         """
         Start the farming process.
         """
-        resp = await self.session.post("https://game-domain.blum.codes/api/v1/farming/start", ssl=False)
+        resp = await self.session.post(f"https://{game_url}/api/v1/farming/start",ssl=False)
 
         if resp.status != 200:
             await asyncio.sleep(1)
-            resp = await self.session.post("https://game-domain.blum.codes/api/v1/farming/start", ssl=False)
+            resp = await self.session.post(f"https://{game_url}/api/v1/farming/start",ssl=False)
 
     async def friend_balance(self):
         """
         Gets friend balance
         """
-        resp = await self.session.get("https://gateway.blum.codes/v1/friends/balance", ssl=False)
+        resp = await self.session.get(f"https://{user_url}/v1/friends/balance",ssl=False)
         resp_json = await resp.json()
         await asyncio.sleep(1)
 
@@ -184,38 +203,38 @@ class BlumBot:
         is_available = resp_json.get("canClaim")
 
         if resp.status != 200:
-            resp = await self.session.get("https://gateway.blum.codes/v1/friends/balance", ssl=False)
+            resp = await self.session.get(f"https://{user_url}/v1/friends/balance",ssl=False)
             resp_json = await resp.json()
             claim_amount = resp_json.get("amountForClaim")
             is_available = resp_json.get("canClaim")
 
         return (claim_amount,
                 is_available)
-        
+
     async def get_referral_code(self) -> str:
         """
         Gets referral
         """
-        resp = await self.session.get("https://gateway.blum.codes/v1/friends/balance", ssl=False)
+        resp = await self.session.get(f"https://{user_url}/v1/friends/balance",ssl=False)
         resp_json = await resp.json()
 
         referralToken = resp_json.get("referralToken")
 
         if resp.status != 200:
             await asyncio.sleep(1)
-            resp = await self.session.get("https://gateway.blum.codes/v1/friends/balance", ssl=False)
+            resp = await self.session.get(f"https://{user_url}/v1/friends/balance",ssl=False)
             resp_json = await resp.json()
             referralToken = resp_json.get("referralToken")
-        
+
         return referralToken
 
     async def friend_claim(self):
-        resp = await self.session.post("https://gateway.blum.codes/v1/friends/claim", ssl=False)
+        resp = await self.session.post(f"https://{user_url}/v1/friends/claim",ssl=False)
         resp_json = await resp.json()
         amount = resp_json.get("claimBalance")
         if resp.status != 200:
             await asyncio.sleep(1)
-            resp = await self.session.post("https://gateway.blum.codes/v1/friends/claim", ssl=False)
+            resp = await self.session.post(f"https://{user_url}/v1/friends/claim",ssl=False)
             resp_json = await resp.json()
             amount = resp_json.get("claimBalance")
         return amount
@@ -224,22 +243,22 @@ class BlumBot:
         """
         Get the current balance and farming status.
         """
-        resp = await self.session.get("https://game-domain.blum.codes/api/v1/user/balance", ssl=False)
+        resp = await self.session.get(f"https://{game_url}/api/v1/user/balance",ssl=False)
         resp_json = await resp.json()
         await asyncio.sleep(1)
-    
+
         timestamp = resp_json.get("timestamp")
         play_passes = resp_json.get("playPasses")
-        
+
         start_time = None
         end_time = None
         if resp_json.get("farming"):
             start_time = resp_json["farming"].get("startTime")
             end_time = resp_json["farming"].get("endTime")
-    
-        return (int(timestamp / 1000) if timestamp is not None else None, 
-                int(start_time / 1000) if start_time is not None else None, 
-                int(end_time / 1000) if end_time is not None else None, 
+
+        return (int(timestamp / 1000) if timestamp is not None else None,
+                int(start_time / 1000) if start_time is not None else None,
+                int(end_time / 1000) if end_time is not None else None,
                 play_passes)
 
     async def login(self):
@@ -248,17 +267,21 @@ class BlumBot:
         """
         try:
             json_data = {"query": await self.account.get_tg_web_data()}
-    
-            resp = await self.session.post("https://gateway.blum.codes/v1/auth/provider/PROVIDER_TELEGRAM_MINI_APP",
-                                           json=json_data, ssl=False)
+
+            resp = await self.session.post("https://user-domain.blum.codes/api/v1/auth/provider/PROVIDER_TELEGRAM_MINI_APP",
+                                           json=json_data,ssl=False)
             resp_json = await resp.json()
-    
+           # logger.info(f"{resp_json}")
+
+
             self.session.headers['Authorization'] = "Bearer " + resp_json.get("token").get("access")
             self.refresh_token = resp_json.get("token").get("refresh")
             return True
-        except:
+        except Exception as err:
+            logger.info(f"{err}")
+
             return False
-        
+
     async def register(self, referral_code: str, username: str):
         """
         Register to the game using Telegram mini app authentication.
@@ -269,8 +292,8 @@ class BlumBot:
             "username": username
         }
 
-        resp = await self.session.post("https://gateway.blum.codes/v1/auth/provider/PROVIDER_TELEGRAM_MINI_APP",
-                                        json=json_data, ssl=False)
+        resp = await self.session.post("https://user-domain.blum.codes/api/v1/auth/provider/PROVIDER_TELEGRAM_MINI_APP",
+                                        json=json_data,ssl=False)
         resp_json = await resp.json()
         if 'limit' in await resp.text():
             raise RefCodeError('Referral token limit reached')
