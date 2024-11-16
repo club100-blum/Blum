@@ -1,4 +1,4 @@
-# Blum-Farm
+# [UPDATED] Blum-Farm
 
 ![1](https://github.com/club100-blum/Blum/assets/175149065/4a20c325-ed6c-47bd-941c-ec92819bbcc3)
 
