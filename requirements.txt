@@ -4,10 +4,10 @@ cryptography
 cryptg
 loguru==0.7.2
 aiohttp-proxy
-aiohttp==3.9.5
+aiohttp
 psutil
 sqlalchemy[asyncio]
 aiosqlite
 aiocfscrape==1.0.0
 aiofiles
-pypiwin32
+pywin32; platform_system == "Windows"
