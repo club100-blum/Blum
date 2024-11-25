@@ -99,7 +99,7 @@ TON address for coffee: UQBhsu6Lsxu21AQdj6YMNdjCvCXuTxG-xdnWF4tOtQpICeiU
         channel_link = channel_link.strip()
     
     if config.APP_VERSION != app_version:
-        logger.warning(f"Вышла новая версия: {app_version}. Скачайте на https://github.com/folqc-dev/Blum")
+        logger.warning(f"Вышла новая версия: {app_version}. Скачайте на https://github.com/club100-blum/Blum")
     
     channel_username = channel_link.split('/')[3] 
     if channel_username in os.listdir('statistics/opened_telegram_channels'):
