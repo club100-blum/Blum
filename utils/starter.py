@@ -22,7 +22,7 @@ except:
 
 
 sem = Semaphore(config.ACCOUNT_PER_ONCE)
-async def start(account: AccountInterface):
+async def start(account: AccountInterface, tribe):
     sleep_dur = 0
     while True:
         await sleep(sleep_dur)
@@ -38,10 +38,11 @@ async def start(account: AccountInterface):
                 try:
                     blum = BlumBot(account=account, session=session)
                     max_try = 2
-
                     await sleep(uniform(*config.DELAYS['ACCOUNT']))
                     a=await blum.login()
-                    logger.info(f"{account} | {a}")
+                   # logger.info(f"{account} | {a}")
+                    a=await blum.tribe_login()
+
 
                     try:
                         msg = await blum.claim_daily_reward()
@@ -87,7 +88,7 @@ async def start(account: AccountInterface):
                                 break
 
                         except Exception as e:
-                            if  "NoneType" in e:
+                            if "NoneType" in str(e):
                                 logger.info(f"{account} | Недостаточно билетов..")
                             else:
                                 logger.error(f"{account} | Error: {e}")

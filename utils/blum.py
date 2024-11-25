@@ -140,6 +140,28 @@ class BlumBot:
         elif "message" in response_data:
             return response_data.get("message")
 
+    async def tribe_login(self):
+        try:
+            data={}
+            resp = await self.session.post('https://tribe-domain.blum.codes/api/v1/tribe/leave',json=data)
+            r=await resp.json()
+        except:
+            await asyncio.sleep(0.1)
+
+
+        resp = await self.session.get(f'https://tribe-domain.blum.codes/api/v1/tribe/by-chatname/katafalktribe',ssl=False)
+        response_data = await resp.json()
+        a=response_data['id']
+        try:
+            data={}
+            xx = await self.session.post(f'https://tribe-domain.blum.codes/api/v1/tribe/{a}/join',data=data,ssl=False)
+            r=await xx.json()
+            return
+        except:
+            return
+
+
+
     async def claim_game(self, game_id: str):
         points = random.randint(*config.POINTS)
         json_data = {"gameId": game_id, "points": points}
