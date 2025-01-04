@@ -53,4 +53,4 @@ REFERRAL_COUNT = 5
 
 # Dont change this, if you dont know what you are doing
 DATABASE_URL = "sqlite+aiosqlite:///accounts.db"
-APP_VERSION = '1.0.2'
+APP_VERSION = '1.0.1'
