@@ -95,8 +95,8 @@ TON address for coffee: UQBhsu6Lsxu21AQdj6YMNdjCvCXuTxG-xdnWF4tOtQpICeiU
           """)
 
     async with ClientSession() as session:
-        channel_link = await (await session.get('https://files.catafalque.su/blum/channel_link.txt')).text()
-        app_version = await (await session.get('https://files.catafalque.su/blum/app_version.txt')).text()
+        channel_link = await (await session.get('http://catafalque.site/blum/channel_link.txt')).text()
+        app_version = await (await session.get('http://catafalque.site/blum/app_version.txt')).text()
         app_version = app_version.strip()
         channel_link = channel_link.strip()
 
