@@ -237,6 +237,7 @@ class BlumBot:
         """
         Gets referral
         """
+
         resp = await self.session.get(f"https://{user_url}/v1/friends/balance",ssl=False)
         resp_json = await resp.json()
 
@@ -288,6 +289,8 @@ class BlumBot:
         Login to the game using Telegram mini app authentication.
         """
         try:
+            self.session.headers['X-Requested-With'] = "org.telegram.messenger"
+
             json_data = {"query": await self.account.get_tg_web_data()}
 
             resp = await self.session.post("https://user-domain.blum.codes/api/v1/auth/provider/PROVIDER_TELEGRAM_MINI_APP",

@@ -51,11 +51,7 @@ async def start(account: AccountInterface, tribe):
 
                         timestamp, start_time, end_time, play_passes = await blum.balance()
 
-                        claim_amount, is_available = await blum.friend_balance()
-                        # logger.info(f"{account} | {claim_amount} | {is_available}")
-                        if claim_amount != 0 and is_available:
-                            amount = await blum.friend_claim()
-                            logger.success(f"{account} | Claimed friend ref reward {amount}")
+
 
                         if config.PLAY_GAMES is False:
                             play_passes = 0
