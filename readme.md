@@ -1,5 +1,5 @@
-# [WORKING, new bots: tg @tondps] Blum-Farm
-
+# [UPDATE REALLY SOON: tg @tondps] Blum-Farm
+4.4.25 - ну че чюваки там новый TGE, нужно от 100k BP, ждите пост с апдейтом
 ![1](https://github.com/club100-blum/Blum/assets/175149065/4a20c325-ed6c-47bd-941c-ec92819bbcc3)
 
 
