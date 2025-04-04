@@ -1,4 +1,4 @@
-# [WORKID: TGE UPDATE] Blum-Farm
+# [WORKING: TGE UPDATE] Blum-Farm
 4.4.25 - ну че чюваки там новый TGE, нужно от 100k BP: добро пожаловать, снова
 ![1](https://github.com/club100-blum/Blum/assets/175149065/4a20c325-ed6c-47bd-941c-ec92819bbcc3)
 
